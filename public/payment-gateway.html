@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectalist</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <!--     <h1>payment gateway</h1>
+ -->
+    <section id="header">
+        <a href="home.html"><img src="image/logo.png" class="logo" alt="" width="180" height="50"></a>
+        <div>
+            <ul id="navbar">
+            </ul>
+        </div>
+    </section>
+
+
+    <h1 style="text-align: center;text-decoration: underline;">Checkout</h1>
+    <div class="cart-container">
+        <div class="checkout">
+        <div class="gateway-container">
+            <div class="gateway-header"></div>
+            <div class="gateway-form">
+                <form method="post" id="gateway-form">
+                    <div style="margin-bottom: 15px;">
+                        <label for="card-no">Card No</label>
+                        <input type="number" pattern="^(4|5|6011|35\\d{2})[0-9]{12,14}$" placeholder="Enter Card Number"
+                            name="cno" class="gateway-input gateway-full">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="holder-name">Holder Name</label>
+                        <input type="text" pattern="^[A-Za-z ]+$" placeholder="Enter Card Holder Name" name="hname"
+                            class="gateway-input gateway-full">
+                    </div>
+                    <div class="div-details">
+                        <div class="wrapper-between">
+                            <div>
+                                <p>CVV</p>
+                                <sub>Enter 3 or 4 digit number on back of card</sub>
+                            </div>
+                            <input type="number" pattern="[0-9]{3,4}$"
+                                placeholder="Enter Card Number" name="cvv" class="gateway-input">
+                        </div>
+                        <div class="wrapper-between">
+                            <div>
+                                <p>Expiry Date</p>
+                                <sub>Enter Exp date</sub>
+                            </div>
+                            <input type="month" placeholder="Enter Card Number" name="expdate" class="gateway-input">
+                        </div>
+                        <div class="wrapper-between">
+                            <div>
+                                <p>Password</p>
+                                <sub>Enter your Password</sub>
+                            </div>
+                            <input type="password" placeholder="Enter Card Number" name="password"
+                                class="gateway-input">
+                        </div>
+                    </div>
+                    <div>
+                        <button class="w-full checkout-button" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="gateway-output">
+            <div class="output-header">
+            </div>
+            <div class="output-container">
+                <h3 class="output-sub">Checkout Summary</h3>
+                <div class="content">
+                    <h3 class="receipt-text" id="r-name">Name: Nakul</h2>
+                    <h3 class="receipt-text" id="r-product">Product: Float Pop</h2>
+                    <h3 class="receipt-text" id="r-ppu">Price per Unit: 1200</h2>
+                    <h3 class="receipt-text" id="r-quantity">Quantity: 3</h3>
+                </div>
+            </div>
+            <div class="final-price" >
+                <h3 style="font-weight: 550;">&#8377; <span id="r-fprice">3600</span></h3>
+            </div>
+        </div>
+        </div>
+    </div>
+    <script>
+    const gatewayForm = document.getElementById("gateway-form");
+    const gatewayData = JSON.parse(sessionStorage.getItem("gateway-data"));
+    const loginData = JSON.parse(sessionStorage.getItem("login-data"));
+    //page loads
+    document.addEventListener("DOMContentLoaded", onPageLoad);
+    function onPageLoad() {
+        const namef = document.getElementById("r-name");
+        const productf = document.getElementById("r-product");
+        const ppuf = document.getElementById("r-ppu");
+        const quantityf = document.getElementById("r-quantity");
+        try {
+            const gatewayData = JSON.parse(sessionStorage.getItem("gateway-data"));
+            const loginData = JSON.parse(sessionStorage.getItem("login-data"));
+            productf.textContent = `Product: ${gatewayData[0]}`;
+            namef.textContent = `Name: ${loginData["username"]}`;
+            ppuf.textContent = `Price per Unit: ${gatewayData[1]}`;
+            quantityf.textContent = `Quantity: ${gatewayData[2]}`;
+            document.getElementById("r-fprice").textContent = `${gatewayData[1] * gatewayData[2]}`
+        } catch (error) {
+            alert(error)
+        }
+    }
+    //form submission
+    gatewayForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(gatewayForm);
+
+    // Convert form data to an object
+    const data = {
+        password: formData.get("password"),
+        cvv: formData.get("cvv"),
+    };
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+
+    try {
+      const response = await fetch("/api/gateway", {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify({data, gatewayData, loginData}),
+      }).then(res =>  res.json());
+
+      if (response.status != "ok") {
+        alert(response.data);
+      } else {
+        alert("Order Placed")
+        sessionStorage.setItem("gateway-data", {})
+        window.location.href = "http://localhost:5000/shop.html";
+      }
+
+    } catch (error) {
+      console.error("Error:", error.message);
+    }
+  }); 
+
+    </script>
+</body>
+
+</html>

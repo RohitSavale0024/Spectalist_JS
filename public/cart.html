@@ -1,30 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spectalists</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Spectalist</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
+
 <body>
-    <div class="container">
-        <header>
-           <h1>Your Shopping Cart</h1>
-           <div class="shopping">
-              <img src="image/shopping_bag.png">
-              <span class="quantity">0</span>
+
+    <section id="header">
+        <a href="home.html"><img src="image/logo.png" class="logo" alt="" width="180" height="50"></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="cart.html"><i class="fa fa-shopping-cart"></i></a></li>
+            </ul>
         </div>
-     </header>
-        <div class="list"></div>
- </div>
-        <div class="cart">
-        <h1>Cart</h1>
-        <ul class="listCart" ></ul>
-        <div class="checkOut">
-        <div class="total">0</div>
-        <div class="closeShopping">Close</div>
-        </div>
-        </div>
-        <script src="script.js"></script>
+    </section>
+
+
+    <h1 style="text-align: center;text-decoration: underline;">Cart Items</h1>
+    <div class="cart-container"></div>
+
+
+
+    <script src="script.js"></script>
+    <script>
+        const fetchRecords = async () => {
+            const loginData = JSON.parse(sessionStorage.getItem("login-data"));
+            const _id = loginData["_id"];
+            const headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            const response = await fetch("http://localhost:5000/api/cartData", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify({
+                    userId: _id
+                })
+            }).then(res => res.json());
+
+            if (response.status != "ok") {
+                alert("failed to load cart data")
+            } else {
+                return response.data;
+            }
+        }
+
+        const renderCartItems = async () => {
+            const cartItems = await fetchRecords();
+            const container = document.querySelector('.cart-container');
+            container.innerHTML = '';
+            cartItems.forEach(item => {
+                const card = document.createElement('div');
+                card.setAttribute("class", "cart-item")
+                card.innerHTML = `
+      <img src="${item.img}g" alt="${item.itemName}" class="cart-img">
+      <div>
+        <br>
+        <br>
+        <br>
+        <h4 class="card-title">${item.itemName}</h4>
+        <p class="card-text cart-text">Price: ${item.price} &#8377;</p>
+        <p class="card-text cart-text">Quantity: ${item.amount}</p>
+        <a href="#" class="btn btn-primary" onclick="gatewayData(['${item.itemName}', ${item.price}, ${item.amount}])">Buy Now</a>
+      </div>
+    `;
+                container.appendChild(card);
+            });
+        }
+
+        renderCartItems();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Retrieve loginData from sessionStorage
+            const loginData = sessionStorage.getItem("login-data");
+
+            // Parse loginData JSON string into an object
+            const loginDataObj = JSON.parse(loginData);
+
+            // Check if loginDataObj exists and if user is logged in
+            if (loginDataObj) {
+                const userName = loginDataObj.username;
+
+                // Display the userName in the navbar
+                const navbar = document.getElementById("navbar");
+                const userNameElement = document.createElement("span");
+                userNameElement.classList += "user";
+                userNameElement.textContent = `${userName}`;
+                navbar.appendChild(userNameElement);
+                const logout = document.createElement("button");
+                logout.innerText = "logout";
+                logout.setAttribute("id", "logout");
+                logout.addEventListener("click", function () {
+                    sessionStorage.setItem("login-data", {});
+                    signin.classList.remove("hide");
+                    signup.classList.remove("hide");
+                    navbar.removeChild(userNameElement);
+                    navbar.removeChild(logout);
+                })
+                navbar.appendChild(logout);
+            } else {
+                signin.classList.remove("hide");
+                signup.classList.remove("hide");
+            }
+        });
+            
+        
+    </script>
+
+    <footer class="h-footer">
+        <p>&copy; 2023 Spectacles and Goggles Store. All rights reserved.</p>
+    </footer>
+
 </body>
+
 </html>

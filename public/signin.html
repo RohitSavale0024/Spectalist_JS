@@ -1,36 +1,48 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spectalist</title>
-  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"/>
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
+
 <body>
 
   <section id="header">
     <a href="home.html"><img src="image/logo.png" class="logo" alt="" width="180" height="50"></a>
     <div>
-        <ul id="navbar">
-            <!-- <li><a class="active" href="home.html">Home</a></li> -->
-            <!-- <li><a href="signin.html">Sign In</a></li>
-            <li><a href="signup.html">Sign Up</a></li> -->
-            <li><a href="shop.html">Shop</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li><a href="cart.html"><i class="far fa-shopping-bag"></i></a></li>
-        </ul>
+      <ul id="navbar">
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="cart.html"><i class="fa fa-shopping-cart"></i></a></li>
+      </ul>
     </div>
- </section>
+  </section>
 
   <section class="container">
     <h1>Sign In</h1>
-    <form>
-      <input type="text" placeholder="Username">
-      <input type="password" placeholder="Password">
+    <form id="signinForm" method="post" action="/api/signin">
+      <input type="text" name="email" required placeholder="email">
+      <input type="password" name="password" required placeholder="Password">
       <button type="submit">Sign In</button>
     </form>
+    <div id="errorContainer" style="display: none;">
+      <span id="errorMessage"></span>
+      <span id="closeButton">close</span>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Error</h3>
+        <p id="modalErrorMessage"></p>
+      </div>
+    </div>
+
     </br>
     <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
   </section>
@@ -40,5 +52,90 @@
     <p>&copy; 2023 Spectacles and Goggles Store. All rights reserved.</p>
   </footer>
 
+
+  <script>
+    const form = document.getElementById('signinForm');
+    const errorContainer = document.getElementById('errorContainer');
+    const modal = document.getElementById('myModal');
+    const modalErrorMessage = document.getElementById('modalErrorMessage');
+
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault(); // Prevent form submission
+
+      const formData = new FormData(form);
+      const data = {
+        email: formData.get('email'),
+        password: formData.get('password')
+      };
+
+      // Set custom headers
+      const headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+
+      fetch('http://localhost:5000/api/signin', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data)
+      })
+        .then(response => response.json())
+        .then(result => {
+          console.log(result);
+
+          if (result.status === "ok") {
+            const loginData =  sessionStorage.setItem("login-data", JSON.stringify(result.data));
+            window.location.href = "http://localhost:5000/shop.html";
+          }
+          else {
+            // alert("Invalid credentials");
+            displayErrorModal('Invalid email or password');
+          }
+        })
+
+        // .then(result => {
+        //   if (result.error) {
+        //     const errorContainer = document.getElementById('errorContainer');
+        //     errorContainer.textContent = result.error;
+        //   }
+        //   else {
+        //     // Redirect to the desired page upon successful sign-in
+        //     window.location.href = "http://localhost:5000/shop.html";
+        //   }
+        // })
+
+        .catch(error => {
+          console.error(error);
+        });
+    });
+
+
+
+    // Display the modal with the error message
+    function displayErrorModal(errorMessage) {
+      modalErrorMessage.textContent = errorMessage;
+      modal.style.display = 'block';
+    }
+
+    // Close the modal when the close button is clicked
+    const closeButton = document.getElementById("closeButton");
+    closeButton.addEventListener('click', function () {
+      errorContainer.style.display = 'none';
+    });
+
+    const modalCloseButton = document.querySelector(".modal .close");
+    modalCloseButton.addEventListener('click', function () {
+      modal.style.display = "none";
+    })
+
+    window.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+
+  </script>
+
+
 </body>
+
 </html>

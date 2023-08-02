@@ -7,132 +7,87 @@ window.addEventListener("focus", () => {
     document.title = docTitle;
 })
 
-
-let openShopping = document.querySelector('.shopping');
-let closeShopping = document.querySelector('.closeShopping');
-let list = document.querySelector('.list');
-let listCart = document.querySelector('.listCart');
-let body = document.querySelector('body');
-let total = document.querySelector('.total');
-let quantity = document.querySelector('.quantity');
-
-
-openShopping.addEventListener("click", ()=>{
-  body.classList.add('active');
-})
-closeShopping.addEventListener('click', ()=>{
-  body.classList.remove('active');
-})
-let products = [
-    {
-        id: 1,
-        name: 'Highlight',
-        image: 'img1.png',
-        price: 999
-
-
-    },
-   {
-        id: 2,
-        name: 'Urban Retro',
-        image: '2.png',
-        price: 1200
-   },
-   {
-    id: 3,
-    name: 'Float Pop',
-    image: '3.PNG',
-    price: 699
-   },
-   {
-    id: 4,
-    name: 'Power',
-    image: 'gog1.png',
-    price: 899
-   },
-   {
-    id: 5,
-    name: 'Square Style',
-    image: 'gog2.png',
-    price: 899
-   },
-   {
-    id: 6,
-    name: 'Round',
-    image: 'gog3.png',
-    price: 1111
-    },
-    {
-        id: 7,
-        name: 'Hustler',
-        image: 'img4.png',
-        price: 499
-       },
-       {
-        id: 7,
-        name: 'Ojos',
-        image: 'img5.png',
-        price: 699
-       },
-       {
-        id: 7,
-        name: 'Readers',
-        image: 'img6.png',
-        price: 899
-       },   
-];
-let listCarts  = [];
-function initApp(){
-    products.forEach((value, key) =>{
-        let newDiv = document.createElement('div');
-        newDiv.classList.add('item');
-        newDiv.innerHTML = `
-            <img src="image/${value.image}">
-            <div class="title">${value.name}</div>
-            <div class="price">${value.price.toLocaleString()}</div>
-            <button onclick="addToCart(${key})">Add To Cart</button>`;
-        list.appendChild(newDiv);
-    })
+const gatewayData = (data) => {
+    const [name, price, amount] = data;
+    console.log(name, price, amount);
+    sessionStorage.setItem("gateway-data", JSON.stringify(data));
+    window.location.href = "http://localhost:5000/payment-gateway.html";
 }
-initApp();
-function addToCart(key){
-    if(listCarts[key] == null){
-        // copy product form list to list cart
-        listCarts[key] = JSON.parse(JSON.stringify(products[key]));
-        listCarts[key].quantity = 1;
-    }
-    reloadCart();
-}
-function reloadCart(){
-    listCart.innerHTML = '';
-    let count = 0;
-    let totalPrice = 0;
-    listCarts.forEach((value, key)=>{
-        totalPrice = totalPrice + value.price;
-        count = count + value.quantity;
-        if(value != null){
-            let newDiv = document.createElement('li');
-            newDiv.innerHTML = `
-                <div><img src="image/${value.image}"/></div>
-                <div>${value.name}</div>
-                <div>${value.price.toLocaleString()}</div>
-                <div>
-                    <button onclick="changeQuantity(${key}, ${value.quantity - 1})">-</button>
-                    <div class="count">${value.quantity}</div>
-                    <button onclick="changeQuantity(${key}, ${value.quantity + 1})">+</button>
-                </div>`;
-                listCart.appendChild(newDiv);
-        }
-    })
-    total.innerText = totalPrice.toLocaleString();
-    quantity.innerText = count;
-}
-function changeQuantity(key, quantity){
-    if(quantity == 0){
-        delete listCarts[key];
-    }else{
-        listCarts[key].quantity = quantity;
-        listCarts[key].price = quantity * products[key].price;
-    }
-    reloadCart();
-}
+
+
+
+// shop.js
+// document.addEventListener('DOMContentLoaded', function () {
+//     const addToCartButtons = document.querySelectorAll('.button');
+  
+//     addToCartButtons.forEach(function (button) {
+//       button.addEventListener('click', function (event) {
+//         const spectacleItem = event.target.closest('.feature-item2');
+//         const spectacleId = spectacleItem.dataset.id;
+//         const spectacleTitle = spectacleItem.querySelector('h3').innerText;
+//         const spectaclePrice = spectacleItem.querySelector('p').innerText;
+  
+//         // Create the cart item object
+//         const cartItem = {
+//           id: spectacleId,
+//           title: spectacleTitle,
+//           price: spectaclePrice,
+//         };
+  
+//         // Retrieve existing cart items from local storage or initialize an empty array
+//         const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+  
+//         // Add the new item to the cart
+//         cartItems.push(cartItem);
+  
+//         // Store the updated cart items in local storage
+//         localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  
+//         // Redirect to the cart.html page
+//         window.location.href = 'cart.html';
+//       });
+//     });
+//   });
+  
+
+//   // cart.js
+//   document.addEventListener('DOMContentLoaded', function () {
+//     renderCartItems();
+//   });
+  
+//   function renderCartItems() {
+//     const cartItems = JSON.parse(localStorage.getItem('cartItems'));
+  
+//     const cartItemsContainer = document.getElementById('cartItems');
+//     cartItemsContainer.innerHTML = '';
+  
+//     if (cartItems && cartItems.length > 0) {
+//       for (let i = 0; i < cartItems.length; i++) {
+//         const cartItem = cartItems[i];
+  
+//         const spectacleItem = document.createElement('div');
+//         spectacleItem.classList.add('feature-item2');
+  
+//         const image = document.createElement('img');
+//         image.src = cartItem.image;
+//         image.alt = cartItem.name;
+  
+//         const name = document.createElement('h3');
+//         name.textContent = cartItem.name;
+  
+//         const price = document.createElement('p');
+//         price.textContent = 'Price: $' + cartItem.price;
+  
+//         spectacleItem.appendChild(image);
+//         spectacleItem.appendChild(name);
+//         spectacleItem.appendChild(price);
+  
+//         cartItemsContainer.appendChild(spectacleItem);
+//       }
+//     } else {
+//       const emptyCartMessage = document.createElement('p');
+//       emptyCartMessage.textContent = 'Your cart is empty';
+//       cartItemsContainer.appendChild(emptyCartMessage);
+//     }
+//   }
+  
