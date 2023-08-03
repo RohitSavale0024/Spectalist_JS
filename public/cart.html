@@ -56,6 +56,7 @@
             cartItems.forEach(item => {
                 const card = document.createElement('div');
                 card.setAttribute("class", "cart-item")
+                console.log(item);
                 card.innerHTML = `
       <img src="${item.img}g" alt="${item.itemName}" class="cart-img">
       <div>
@@ -64,7 +65,12 @@
         <br>
         <h4 class="card-title">${item.itemName}</h4>
         <p class="card-text cart-text">Price: ${item.price} &#8377;</p>
-        <p class="card-text cart-text">Quantity: ${item.amount}</p>
+        <p>Quantity: </p>
+        <div class="cart-btn-container">
+            <button class="q-operator" id="increment" onclick="updateQ('increment', '${item["_id"]}')">+</button>
+            <div class="quantity-container">${item.amount}</div>
+            <button class="q-operator" id="decrement" onclick="updateQ('decrement', '${item["_id"]}')">-</button>
+        </div>
         <a href="#" class="btn btn-primary" onclick="gatewayData(['${item.itemName}', ${item.price}, ${item.amount}])">Buy Now</a>
       </div>
     `;
@@ -107,8 +113,29 @@
                 signup.classList.remove("hide");
             }
         });
-            
-        
+
+        async function updateQ(operation, cartItemId) {
+            try {
+                const headers = new Headers();
+                headers.append('Content-Type', 'application/json');
+
+                const response = await fetch("http://localhost:5000/api/updateCartItem", {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify({operation, cartItemId})
+                }).then(response => response.json())
+
+                if (response.status === "ok") {
+                    window.location.reload();
+                } else {
+                    alert(response.data);
+                }
+            }
+            catch (error) {
+                alert("Error Occured", error);
+            }
+        }
+
     </script>
 
     <footer class="h-footer">
